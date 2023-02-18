@@ -9,6 +9,8 @@ library(zoo)
 raw <- read_excel("./genericos.xlsx", na = c("N/E", "NA"), skip = 4)
 
 key <- readRDS("./Data/Key.RDS")
+key_s <- readRDS("./Data/Keys/key_s.RDS")
+key_s2 <- readRDS("./Data/Keys/key_s2.RDS")
 
 long <- raw |>
     select(-c(`Periodo disponible`, Periodicidad, `Tipo cifra`,
@@ -45,7 +47,7 @@ s <- long |>
     arrange(Mes) |>
     mutate(Inflación = Total / lag(Total, 12) - 1) |>
     filter(Mes == prueba)
-    
+
 s2 <- long |>
     left_join(key_s2, by = "Subíndice_2") |>
     mutate(Ponderador_s2 = Ponderador.x / Ponderador.y) |>
