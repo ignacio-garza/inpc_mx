@@ -74,3 +74,23 @@ main |>
         caption = "Fuente: INEGI \nNota:")
 
 ### Third graph
+
+long |>
+    left_join(key_gg, by = "Grupo_General") |>
+    mutate(Ponderador_n = Ponderador.x / Ponderador.y,
+            Contribución = (Indice * Ponderador_n) / 100) |>
+    group_by(Mes, Grupo_General, Ponderador.y) |>
+    summarise(Indice = sum(Contribución)) |>
+    mutate(Contribución = Ponderador.y * Indice) |>
+    group_by(Mes) |>
+    summarise(Suma = sum(Contribución)) |>
+    tail()
+
+
+    group_by(Grupo_General, Ponderador.y) |>
+    arrange(Mes) |>
+    mutate(Temp = Ponderador.y * Total,
+        Contribución = Temp / lag(Temp, 12) - 1) |> 
+        filter(Mes == prueba) |>
+        ungroup() |>
+        summarise(tot = sum(Contribución))
