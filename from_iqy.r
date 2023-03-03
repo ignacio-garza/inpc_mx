@@ -27,15 +27,25 @@ main <- long |>
     ungroup()
 
 ## Sanity Check
-prueba <- as.yearmon("")
+
+
+## Inflationer
+
+inflationer <- function(.data, .prueba) {
+.data |>
+    arrange(Mes) |>
+    mutate(Inflación = Total / lag(Total, 12) - 1) |>
+    filter(Mes == .prueba)
+}
+
+
+prueba <- as.yearmon("2023-01-01")
 
 g <- long |>
     mutate(Contribución = (Indice * Ponderador) / 100) |>
     group_by(Mes) |>
     summarise(Total = sum(Contribución)) |>
-    arrange(Mes) |>
-    mutate(Inflación = Total / lag(Total, 12) - 1) |>
-    filter(Mes == prueba)
+    inflationer(prueba)
 
 s <- long |>
     left_join(key_s, by = "Subíndice") |>
@@ -44,9 +54,7 @@ s <- long |>
     group_by(Mes, Subíndice) |>
     summarise(Total = sum(Contribución)) |>
     group_by(Subíndice) |>
-    arrange(Mes) |>
-    mutate(Inflación = Total / lag(Total, 12) - 1) |>
-    filter(Mes == prueba)
+    inflationer(prueba)
 
 s2 <- long |>
     left_join(key_s2, by = "Subíndice_2") |>
@@ -55,9 +63,7 @@ s2 <- long |>
     group_by(Mes, Subíndice_2) |>
     summarise(Total = sum(Contribución)) |>
     group_by(Subíndice_2) |>
-    arrange(Mes) |>
-    mutate(Inflación = Total / lag(Total, 12) - 1) |>
-    filter(Mes == prueba)
+    inflationer(prueba)
 
 g
 s
