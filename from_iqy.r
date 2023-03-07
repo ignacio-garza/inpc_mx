@@ -6,11 +6,13 @@ library(dplyr)
 library(stringr)
 library(zoo)
 
-raw <- read_excel("./genericos.xlsx", na = c("N/E", "NA"), skip = 4)
+raw <- read_excel("./Inegi/genericos.xlsx", na = c("N/E", "NA"), skip = 4)
 
 key <- readRDS("./Data/Key.RDS")
 key_s <- readRDS("./Data/Keys/key_s.RDS")
 key_s2 <- readRDS("./Data/Keys/key_s2.RDS")
+key_s3 <- readRDS("./Data/Keys/key_s3.RDS")
+key_og <- readRDS("./Data/Keys/key_og.RDS")
 
 long <- raw |>
     select(-c(`Periodo disponible`, Periodicidad, `Tipo cifra`,
@@ -44,8 +46,17 @@ prueba <- as.yearmon("2023-01-01")
 g <- long |>
     mutate(Contribución = (Indice * Ponderador) / 100) |>
     group_by(Mes) |>
-    summarise(Total = sum(Contribución)) |>
-    inflationer(prueba)
+    summarise(Total = sum(Contribución))
+
+og <- long |>
+    left_join(key_gg, by = "Objeto_Gasto") |>
+    mutate(Ponderador_s = Ponderador.x / Ponderador.y,
+            Contribución = (Indice * Ponderador_s) / 100) |>
+    group_by(Mes, Objeto_Gasto) |>
+    summarise(Índice_gg = sum(Contribución))
+    
+   # |>
+   # inflationer(prueba)
 
 s <- long |>
     left_join(key_s, by = "Subíndice") |>
