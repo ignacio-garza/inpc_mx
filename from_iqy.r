@@ -6,9 +6,11 @@ library(dplyr)
 library(stringr)
 library(zoo)
 
+Sys.setlocale("LC_TIME", "es_ES")
+
 raw <- read_excel("./Inegi/genericos.xlsx", na = c("N/E", "NA"), skip = 4)
 
-key <- readRDS("./Data/Key.RDS")
+key <- readRDS("./Data/key.RDS")
 key_s <- readRDS("./Data/Keys/key_s.RDS")
 key_s2 <- readRDS("./Data/Keys/key_s2.RDS")
 key_s3 <- readRDS("./Data/Keys/key_s3.RDS")
@@ -22,16 +24,9 @@ mutate(Título = str_remove(Título, ".*\\d{3} "),
     Mes = openxlsx::convertToDate(Mes) |> as.yearmon()) |>
     left_join(key, by = c("Serie", "Título"))
 
-main <- long |>
-    group_by(Título) |>
-    arrange(Mes) |>
-    mutate(Inflación = Indice / lag(Indice, 12) - 1) |>
-    ungroup()
-
 ## Sanity Check
 
-
-## Inflationer
+    ## Inflationer
 
 inflationer <- function(.data, .prueba) {
 .data |>
@@ -49,7 +44,7 @@ g <- long |>
     summarise(Total = sum(Contribución))
 
 og <- long |>
-    left_join(key_gg, by = "Objeto_Gasto") |>
+    left_join(key_og, by = "Objeto_Gasto") |>
     mutate(Ponderador_s = Ponderador.x / Ponderador.y,
             Contribución = (Indice * Ponderador_s) / 100) |>
     group_by(Mes, Objeto_Gasto) |>
