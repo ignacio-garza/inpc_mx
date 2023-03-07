@@ -17,6 +17,12 @@ Sys.setlocale("LC_TIME", "es_ES")
 
 ## Main Inflation Plot
 
+main <- long |>
+    group_by(Título) |>
+    arrange(Mes) |>
+    mutate(Inflación = Indice / lag(Indice, 12) - 1) |>
+    ungroup()
+
 graphy <- main |>
     filter(Mes > as.yearmon("2018-12-31"),
         months(Mes) == "enero") |>
@@ -33,7 +39,7 @@ graphy <- main |>
     ###Themes
     themo() +
     theme(axis.title.y = element_text(hjust = .99, margin = margin(t = 0, r = 0, b = 0, l = 10)),
-            legend.position = c(.01, 1),
+            legend.position = c(.035, 1),
               legend.background = element_blank(),
               legend.direction = "horizontal") +
     ###Legend Changes
